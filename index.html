@@ -24,7 +24,7 @@
         <h1 class="poppins-light-italic">Wifi Controlled RC Car</h1>
     </header>
     <section>
-        <video width="35%" height="35%" controls>
+        <video class="style" width="35%" height="35%" controls>
             <source src="car-video.mp4" type="video/mp4">
           </video>
     </section>
@@ -35,21 +35,31 @@
         <li>Design</li></br>
         <ol type="A">
            <li>Functional Specification</li>
-           <img src="">
+           <img class="style" src="imgs/func-specs.png" alt="functional specification">
            <p>Both boards send their own IP address to the IOT shadow, then read the other’s IP address from the shadow, and finally connect to each other over TCP. The controller board then sends its accelerometer data over to the RC board and awaits accelerometer data from the RC board. The RC board is waiting for accelerometer data from the controller board and once it receives it, the RC board sets the motors in the direction the accelerometer data tilted in. Once that is done, the RC board sends its own accelerometer data to the controller board and then awaits for more accelerometer data from the controller board. Once the controller board receives accelerometer data from the RC board, it displays that data on the OLED. Then it sends its own accelerometer data back to the RC board in a never ending loop. If the switch on the controller board is pressed then it gets out of the loop so that the car stops and if it is pressed again then the loop continues.
         </p></br>
         <li> System Architecture</li>
-        <img src="">
+        <img class="style" src="imgs/sys-arch.png" alt="system architecture">
         <p>There are 3 main components to the project, the network, controller, and RC car component. The controller component is in charge of sending its own accelerometer data to the RC car component and displaying the accelerometer data of the RC car component. The RC car component is in charge of setting the motors in the direction according to the accelerometer data of the controller component and sending its own accelerometer data to the controller component. The networking component has two main parts. The first part is the IOT shadow which stores the IP addresses of the controller component and RC car component so they can each read each other’s IP addresses. While both the controller and RC car components incorporate the networking component, they each are more focused with the physical aspects of each component. 
         </p></br>
         </ol>
         <li>Implementation</li>
         <ol type="A">
             <li>Building</li>
+            <p>The car first has to be put together, according to the kit provided. Each motor needs to be connected to the L298N driver module in the output pins. The battery pack requires 4 AA batteries and needs to be connected to the L298N driver module in the power pins. Four GPIO pins on the CC3200 board will need to be connected to the direction control pins of the L298N driver module. Once the software is flashed onto the RC car board, the board power input pins will need to be connected to the L298N driver module in order to power the CC3200 board. Both boards need the I2C jumpers set so they can receive accelerometer readings. SPI also needs to be set up to communicate with the Adafruit OLED display.</p>
             <li>Networking</li>
+            <p>This component first requires setting up an Amazon IOT shadow that both boards will connect to. Almost as if the shadow represents two real world objects. After connecting to a WiFi hotspot named “rccontrol”, the board controlling the car needs to post its IP address on the shadow so that the controller knows the car’s IP address. After the car board posts its IP address, it simply listens for a TCP socket connection. Meanwhile, the controller retrieves the IP address of the car and then attempts to establish a TCP connection with the board. The TCP connection uses the SimpleLink networking module on the CC3200 board and follows the typical TCP setup. An example project called tcp_demo can be found under the example projects folder in the CC3200 SDK.</p>
             <li>Controller Component</li>
-            
+            <p>Once the controller has the connection to the RC car, it sends its own accelerometer data to the RC car and then awaits the RC car to send the RC car accelerometer data. Once it receives the RC car accelerometer data, it should then be displayed on the OLED. The data can be displayed on the OLED however one wants. This can be by just displaying the data raw as a string or can be more creative such as drawing a car on the OLED in the direction the car is moving. Once the data is displayed, the controller can do two things. One option is to repeat the previous parts in a loop, starting when it sends its own accelerometer data to the car. The option is when switch 3 is pressed down the controller should loop forever doing nothing so that it acts as if the car is “off” until the switch is pressed again which restarts the main loop.</p>
+            <li>RC Car Component</li>
+            <p>Once the RC car has the connection to the Controller, it awaits accelerometer data from the controller. Once it has received it, it needs to set the GPIO pins to the necessary settings in order to move the motors in the direction the controller wants to. The direction can be decided however one wants forward to be. There are 4 control pins on the L298N driver module. Two pins control one motor and the other two pins control the other motor. In order to move them, one of the pins needs to be set to high and the other needs to be set to low, changing direction depending on which one is high. To stop the motors, both pins need to be high or both need to be low. Once the motors are set to the desired setting, the RC car board then sends its own accelerometer data to the controller board and restarts the loop by awaiting for new accelerometer data from the controller board. The intensity of voltages supplied to each motor can also be optionally modulated by setting the GPIO pins to high for a portion of a small duty cycle, where the larger the portion the greater the average power supplied to the motor will be. We opted for a 1ms duty cycle where after every 10 ns, a systick handler sets the GPIO pins to high or low depending on the X and Y inputs from the controller such that the car can be controlled arbitrarily.</p>
         </ol>
+        <li>Challenges</li>
+        <p>One of the first challenges we encountered was difficulties with building our car. We encountered problems using the battery pack that came with the kit, which seemed to be mysteriously broken the first time we used it and then seemed to somehow work after testing it thoroughly. We also broke the wiring on one of the motors which required us to borrow a motor from the lab room, which fortunately had the exact same models available.
+            Another difficulty was in configuring the TCP connection process. Even though an example project exists already in the CC3200 SDK, it still required some careful thought and workarounds for ensuring that connections are eventually established, including mechanisms for waiting for the other board to connect and gracefully handling bad initial connections. In fact, we went through several different implementations for the actual synchronization process, but eventually settled on the one we use with AWS IoT and the car as the TCP host so to speak.</p>
+            <li>Future Work</li>
+            <p>The main future component that needs to be implemented is a way to have the two boards reconnect if they ever lose connection. Right now, if either board loses connection completely then the entire system just stops working. Some more fine tuning of the voltage management would also be nice, as the car feels a bit too sensitive to certain motions of the controller. Finally, a mechanism that uses the IR remote and receiver provided in class would provide an interesting means for connecting to any WiFi that’s available, instead of hardcoding the AP name into the networking code.
+            </p>
         </ol>
     </section>
     <section> 
