@@ -47,7 +47,7 @@ header{
 
 section {
     font-size: 20px;
-    padding: 8rem;
+    padding: 10rem;
     background-color: #2e3531;
     color: white;
     display: flex;
@@ -62,4 +62,12 @@ section {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+/**.large{
+    font-size: 36px;
+}
+
+.medium {
+    font-size: 30px;
 }
