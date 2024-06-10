@@ -29,7 +29,28 @@
           </video>
     </section>
     <section>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Veritatis consequatur officiis cum. Dicta voluptate molestiae alias officia, dolores ipsam, atque dolorem cum itaque eligendi officiis asperiores odit, neque porro eius. Tempora, aliquid, unde animi id saepe esse in numquam sit atque quod aliquam? Dolorum, temporibus quia reiciendis deleniti nisi odio obcaecati laudantium! Accusantium fuga exercitationem deserunt expedita, atque quasi, provident nisi placeat magni porro alias dolorum, similique nemo repellat accusamus nobis tenetur qui neque voluptate aliquam fugiat? Autem ad saepe laboriosam aliquam veniam laudantium expedita dolorum! Doloremque earum quae similique temporibus quaerat tempora harum. Fugit eligendi debitis modi non alias ipsam, laudantium suscipit beatae, doloribus, quod quasi nemo quas itaque nulla impedit! Quidem tempora aperiam dolore dicta, a aliquid neque, cumque non fugit laborum at dignissimos sed corporis enim quia labore totam. Eos voluptatibus corrupti quos ipsum ab nisi, sit quam, tempora facere qui ea explicabo voluptatum nobis accusantium aspernatur.
+        <ol type="I">
+        <li>Description</li>
+		<p>Our project is a remote controlled RC car that communicates over TCP via a WiFi hotspot. Instead of a typical remote that uses levers or buttons to control the direction of the car, the remote instead is the accelerometer on a Ti CC3200 board. In other words, in order to move the car, you would have to tilt the Ti CC3200 board in the direction you want it to move. The actual car is a kit from DIYables that comes with 2 DC motors, a chassis with wheels, and a battery pack to power the motors. In addition, a L298N driver module needs to be acquired in order to control the motors. Typically the car and the remote would communicate via IR or bluetooth but we have instead opted to communicate over TCP because the CC3200 board does not support bluetooth or IR communication. Because of this, there is one CC3200 board that is physically controlling the car and another CC3200 board that is acting as the controller in order to be able to control the RC car without wires needing to be attached. The L298N driver is also able to power the CC3200 board that it is attached to because the battery pack has a total capacity of 6V. The motors and the CC3200 board that controls them are both being powered by the same source which lowers how many power sources we need on the car chassis. In order for the CC3200 boards to communicate over TCP, they needed to know the IP address of the other. The C3200 that controls the car posts its IP address to AWS IoT so that the controller CC3200 can retrieve it and establish a connection. The controller board also has an OLED screen that displays the accelerometer data of the board on the RC car. Information being displayed means that both boards are successfully sharing information with each other. If switch 3 on the controller board is pressed then it stops sending data to the RC board, acting as if the car has stopped.</p></br>
+        <li>Design</li></br>
+        <ol type="A">
+           <li>Functional Specification</li>
+           <img src="">
+           <p>Both boards send their own IP address to the IOT shadow, then read the other’s IP address from the shadow, and finally connect to each other over TCP. The controller board then sends its accelerometer data over to the RC board and awaits accelerometer data from the RC board. The RC board is waiting for accelerometer data from the controller board and once it receives it, the RC board sets the motors in the direction the accelerometer data tilted in. Once that is done, the RC board sends its own accelerometer data to the controller board and then awaits for more accelerometer data from the controller board. Once the controller board receives accelerometer data from the RC board, it displays that data on the OLED. Then it sends its own accelerometer data back to the RC board in a never ending loop. If the switch on the controller board is pressed then it gets out of the loop so that the car stops and if it is pressed again then the loop continues.
+        </p></br>
+        <li> System Architecture</li>
+        <img src="">
+        <p>There are 3 main components to the project, the network, controller, and RC car component. The controller component is in charge of sending its own accelerometer data to the RC car component and displaying the accelerometer data of the RC car component. The RC car component is in charge of setting the motors in the direction according to the accelerometer data of the controller component and sending its own accelerometer data to the controller component. The networking component has two main parts. The first part is the IOT shadow which stores the IP addresses of the controller component and RC car component so they can each read each other’s IP addresses. While both the controller and RC car components incorporate the networking component, they each are more focused with the physical aspects of each component. 
+        </p></br>
+        </ol>
+        <li>Implementation</li>
+        <ol type="A">
+            <li>Building</li>
+            <li>Networking</li>
+            <li>Controller Component</li>
+            
+        </ol>
+        </ol>
     </section>
     <section> 
         <img width="60%" height="60%" src="imgs/car-pic.jpg" alt="picture of car"
