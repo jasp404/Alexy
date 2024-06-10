@@ -26,6 +26,7 @@ header{
 
 .foreground{
     transform: translateZ(-5px) scale(1.5);
+    max-width: max-content;
 }
 
 .background, .foreground{
